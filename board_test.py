@@ -269,6 +269,29 @@ class BoardTest(TestCase):
             }.union({self._board(knight.with_position(enemy.position), *pawns)})
         )
 
+    def test_moves_for_color(self):
+        white_pieces = [
+            self._piece('a1', type=Piece.Type.ROOK, color=Piece.Color.WHITE),
+            self._piece('b1', type=Piece.Type.KNIGHT, color=Piece.Color.WHITE),
+            self._piece('c1', type=Piece.Type.BISHOP, color=Piece.Color.WHITE),
+            self._piece('d1', type=Piece.Type.QUEEN, color=Piece.Color.WHITE),
+            self._piece('e1', type=Piece.Type.KING, color=Piece.Color.WHITE),
+        ]
+        black_pieces = [
+            self._piece('a8', type=Piece.Type.ROOK, color=Piece.Color.BLACK),
+            self._piece('b8', type=Piece.Type.KNIGHT, color=Piece.Color.BLACK),
+            self._piece('c8', type=Piece.Type.BISHOP, color=Piece.Color.BLACK),
+            self._piece('d8', type=Piece.Type.QUEEN, color=Piece.Color.BLACK),
+            self._piece('e8', type=Piece.Type.KING, color=Piece.Color.BLACK),
+        ]
+        board = self._board(*(white_pieces + black_pieces))
+        boards: set[Board] = set()
+        self.assertSetEqual(
+            board.moves_for_color(Piece.Color.WHITE),
+            boards.union(*[board.moves_for_piece(piece)
+                           for piece in white_pieces])
+        )
+
 
 if 'unittest.util' in __import__('sys').modules:
     # Show full diff in self.assertEqual.

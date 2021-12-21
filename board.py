@@ -181,5 +181,6 @@ class Board:
         return self._move_funcs[piece.type](piece)
 
     def moves_for_color(self, color: Piece.Color) -> FrozenSet['Board']:
-        boards: frozenset[Board] = frozenset()
-        return sum([self.moves_for_piece(piece) for piece in self.pieces_by_color[color]], boards)
+        boards: set[Board] = set()
+        return frozenset(boards.union(*[self.moves_for_piece(piece)
+                                        for piece in self.pieces if piece.color == color]))
