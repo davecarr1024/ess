@@ -197,3 +197,6 @@ class Board:
 
     def is_color_in_check(self, color: Piece.Color) -> bool:
         return self.is_piece_threatened(self.king_for_color(color))
+
+    def is_color_in_checkmate(self, color: Piece.Color) -> bool:
+        return self.is_color_in_check(color) and all([board.is_color_in_check(color) for board in self.moves_for_color(color)])

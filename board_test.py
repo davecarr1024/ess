@@ -322,6 +322,18 @@ class BoardTest(TestCase):
         self.assertFalse(self._board(
             white_king.with_position(Position.parse('d1')), black_rook).is_color_in_check(Piece.Color.WHITE))
 
+    def test_is_color_in_checkmate(self):
+        white_king = self._piece(
+            'e1', type=Piece.Type.KING, color=Piece.Color.WHITE)
+        black_rook_1 = self._piece(
+            'a1', type=Piece.Type.ROOK, color=Piece.Color.BLACK)
+        black_rook_2 = self._piece(
+            'b2', type=Piece.Type.ROOK, color=Piece.Color.BLACK)
+        self.assertTrue(self._board(white_king, black_rook_1,
+                                    black_rook_2).is_color_in_checkmate(Piece.Color.WHITE))
+        self.assertFalse(self._board(white_king, black_rook_1,
+                                     black_rook_2.with_position(Position.parse('b3'))).is_color_in_checkmate(Piece.Color.WHITE))
+
 
 if 'unittest.util' in __import__('sys').modules:
     # Show full diff in self.assertEqual.
