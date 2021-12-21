@@ -184,3 +184,16 @@ class Board:
         boards: set[Board] = set()
         return frozenset(boards.union(*[self.moves_for_piece(piece)
                                         for piece in self.pieces if piece.color == color]))
+
+    def is_piece_threatened(self, piece: Piece) -> bool:
+        return any([piece not in board.pieces for board in self.moves_for_color(piece.color.opponent)])
+
+    def king_for_color(self, color: Piece.Color) -> Piece:
+        kings = [piece for piece in self.pieces if piece.type ==
+                 Piece.Type.KING and piece.color == color]
+        if len(kings) != 1:
+            raise ValueError(kings)
+        return kings[0]
+
+    def is_color_in_check(self, color: Piece.Color) -> bool:
+        return self.is_piece_threatened(self.king_for_color(color))

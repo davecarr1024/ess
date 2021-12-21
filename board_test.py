@@ -292,6 +292,36 @@ class BoardTest(TestCase):
                            for piece in white_pieces])
         )
 
+    def test_threatened(self):
+        white_king = self._piece(
+            'e1', type=Piece.Type.KING, color=Piece.Color.WHITE)
+        black_rook = self._piece(
+            'e4', type=Piece.Type.ROOK, color=Piece.Color.BLACK)
+        self.assertTrue(self._board(
+            white_king, black_rook).is_piece_threatened(white_king))
+        self.assertFalse(self._board(
+            white_king, black_rook.with_position(Position.parse('h4'))).is_piece_threatened(white_king))
+
+    def test_king_for_color(self):
+        with self.assertRaises(ValueError):
+            self._board().king_for_color(Piece.Color.WHITE)
+        white_king = self._piece(
+            'e1', type=Piece.Type.KING, color=Piece.Color.WHITE)
+        black_king = self._piece(
+            'e8', type=Piece.Type.KING, color=Piece.Color.BLACK)
+        self.assertEqual(self._board(white_king, black_king).king_for_color(
+            Piece.Color.WHITE), white_king)
+
+    def test_is_color_in_check(self):
+        white_king = self._piece(
+            'e1', type=Piece.Type.KING, color=Piece.Color.WHITE)
+        black_rook = self._piece(
+            'e4', type=Piece.Type.ROOK, color=Piece.Color.BLACK)
+        self.assertTrue(self._board(
+            white_king, black_rook).is_color_in_check(Piece.Color.WHITE))
+        self.assertFalse(self._board(
+            white_king.with_position(Position.parse('d1')), black_rook).is_color_in_check(Piece.Color.WHITE))
+
 
 if 'unittest.util' in __import__('sys').modules:
     # Show full diff in self.assertEqual.

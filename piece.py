@@ -10,6 +10,13 @@ class Piece:
         WHITE = 'w'
         BLACK = 'b'
 
+        @property
+        def opponent(self) -> 'Piece.Color':
+            if self == Piece.Color.WHITE:
+                return Piece.Color.BLACK
+            else:
+                return Piece.Color.WHITE
+
     class Type(Enum):
         PAWN = 'p'
         KNIGHT = 'n'
