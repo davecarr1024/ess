@@ -1,114 +1,39 @@
 from dataclasses import dataclass
-from typing import Generator
 
-
-@dataclass(frozen=True, repr=False)
+@dataclass(frozen=True)
 class Position:
-    @dataclass(frozen=True)
-    class Rank:
-        @dataclass(frozen=True)
-        class Delta:
-            value: int
-
-            def __post_init__(self):
-                assert self.value in (-1, 0, 1)
-
-            def __neg__(self) -> 'Position.Rank.Delta':
-                return Position.Rank.Delta(-self.value)
-
-        value: str
-
-        def __post_init__(self):
-            assert self.value in 'abcdefgh'
-
-        def can_add(self, delta: Delta) -> bool:
-            return delta.value == 0 or (delta.value == -1 and self.value > 'a'
-                                        ) or (delta.value == 1
-                                              and self.value < 'h')
-
-        def __add__(self, delta: Delta) -> 'Position.Rank':
-            assert self.can_add(delta)
-            return Position.Rank(chr(ord(self.value) + delta.value))
-
-        def __sub__(self, delta: Delta) -> 'Position.Rank':
-            return self + -delta
-
-        def enumerate(self, delta: Delta) -> Generator['Position.Rank', None, None]:
-            val = self
-            while val.can_add(delta):
-                val += delta
-                yield val
-
-    @dataclass(frozen=True)
-    class File:
-        @dataclass(frozen=True)
-        class Delta:
-            value: int
-
-            def __post_init__(self):
-                assert self.value in (-1, 0, 1)
-
-            def __neg__(self) -> 'Position.File.Delta':
-                return Position.File.Delta(-self.value)
-
-        value: int
-
-        def __post_init__(self):
-            assert 1 <= self.value <= 8
-
-        def can_add(self, delta: Delta) -> bool:
-            return delta.value == 0 or (delta.value == -1 and self.value > 1
-                                        ) or (delta.value == 1
-                                              and self.value < 8)
-
-        def __add__(self, delta: Delta) -> 'Position.File':
-            assert self.can_add(delta)
-            return Position.File(self.value + delta.value)
-
-        def __sub__(self, delta: Delta) -> 'Position.File':
-            return self + -delta
-
-        def enumerate(self, delta: Delta) -> Generator['Position.File', None, None]:
-            val = self
-            while val.can_add(delta):
-                val += delta
-                yield val
 
     @dataclass(frozen=True)
     class Delta:
-        drank: 'Position.Rank.Delta'
-        dfile: 'Position.File.Delta'
+        dx: int
+        dy: int
 
         def __neg__(self) -> 'Position.Delta':
-            return Position.Delta(-self.drank, -self.dfile)
+            return Position.Delta(-self.dx, -self.dy)
 
-    rank: Rank
-    file: File
+    x: int
+    y: int
+
+    def __post_init__(self):
+        if self.x < 0 or self.x >= 8 or self.y < 0 or self.y >= 8:
+            raise ValueError(self)
+
+    def can_add(self, d: 'Position.Delta') -> bool:
+        return 0 <= self.x + d.dx < 8 and 0 <= self.y + d.dy < 8
+
+    def __add__(self, d: 'Position.Delta') -> 'Position':
+        if not self.can_add(d):
+            raise ValueError(self, d)
+        return Position(self.x + d.dx, self.y + d.dy)
+
+    def __sub__(self, d: 'Position.Delta') -> 'Position':
+        return self + -d
 
     def __repr__(self) -> str:
-        return f'{self.rank.value}{self.file.value}'
+        return f'{chr(ord("a")+self.x)}{self.y+1}'
 
     @staticmethod
     def parse(s: str) -> 'Position':
-        assert len(s) == 2
-        return Position(Position.Rank(s[0]), Position.File(int(s[1])))
-
-    @staticmethod
-    def delta(drank: int, dfile: int) -> Delta:
-        return Position.Delta(Position.Rank.Delta(drank), Position.File.Delta(dfile))
-
-    def can_add(self, delta: Delta) -> bool:
-        return self.rank.can_add(delta.drank) and self.file.can_add(delta.dfile)
-
-    def __add__(self, delta: Delta) -> 'Position':
-        assert self.can_add(delta)
-        return Position(self.rank + delta.drank, self.file + delta.dfile)
-
-    def __sub__(self, delta: Delta) -> 'Position':
-        return self + -delta
-
-    def enumerate(self, delta: Delta) -> Generator['Position', None, None]:
-        val = self
-        while val.can_add(delta):
-            val += delta
-            yield val
+        if len(s) != 2 or s[0] not in 'abcdefgh' or s[1] not in '12345678':
+            raise ValueError(s)
+        return Position(ord(s[0])-ord('a'), int(s[1])-1)
