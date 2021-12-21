@@ -276,6 +276,7 @@ class BoardTest(TestCase):
             self._piece('c1', type=Piece.Type.BISHOP, color=Piece.Color.WHITE),
             self._piece('d1', type=Piece.Type.QUEEN, color=Piece.Color.WHITE),
             self._piece('e1', type=Piece.Type.KING, color=Piece.Color.WHITE),
+            self._piece('d2', type=Piece.Type.PAWN, color=Piece.Color.WHITE),
         ]
         black_pieces = [
             self._piece('a8', type=Piece.Type.ROOK, color=Piece.Color.BLACK),
@@ -301,16 +302,6 @@ class BoardTest(TestCase):
             white_king, black_rook).is_piece_threatened(white_king))
         self.assertFalse(self._board(
             white_king, black_rook.with_position(Position.parse('h4'))).is_piece_threatened(white_king))
-
-    def test_king_for_color(self):
-        with self.assertRaises(ValueError):
-            self._board().king_for_color(Piece.Color.WHITE)
-        white_king = self._piece(
-            'e1', type=Piece.Type.KING, color=Piece.Color.WHITE)
-        black_king = self._piece(
-            'e8', type=Piece.Type.KING, color=Piece.Color.BLACK)
-        self.assertEqual(self._board(white_king, black_king).king_for_color(
-            Piece.Color.WHITE), white_king)
 
     def test_is_color_in_check(self):
         white_king = self._piece(

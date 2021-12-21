@@ -180,23 +180,22 @@ class Board:
     def moves_for_piece(self, piece: Piece) -> FrozenSet['Board']:
         return self._move_funcs[piece.type](piece)
 
-    def moves_for_color(self, color: Piece.Color) -> FrozenSet['Board']:
+    def _moves_for_color_ignoring_check(self, color: Piece.Color) -> FrozenSet['Board']:
         boards: set[Board] = set()
         return frozenset(boards.union(*[self.moves_for_piece(piece)
                                         for piece in self.pieces if piece.color == color]))
 
-    def is_piece_threatened(self, piece: Piece) -> bool:
-        return any([piece not in board.pieces for board in self.moves_for_color(piece.color.opponent)])
+    def moves_for_color(self, color: Piece.Color) -> FrozenSet['Board']:
+        return frozenset({board for board in self._moves_for_color_ignoring_check(color) if not board.is_color_in_check(color)})
 
-    def king_for_color(self, color: Piece.Color) -> Piece:
-        kings = [piece for piece in self.pieces if piece.type ==
-                 Piece.Type.KING and piece.color == color]
-        if len(kings) != 1:
-            raise ValueError(kings)
-        return kings[0]
+    def is_piece_threatened(self, piece: Piece) -> bool:
+        return any([piece not in board.pieces for board in self._moves_for_color_ignoring_check(piece.color.opponent)])
+
+    def pieces_of_type_and_color(self, type: Piece.Type, color: Piece.Color) -> FrozenSet[Piece]:
+        return frozenset({piece for piece in self.pieces if piece.type == type and piece.color == color})
 
     def is_color_in_check(self, color: Piece.Color) -> bool:
-        return self.is_piece_threatened(self.king_for_color(color))
+        return any([self.is_piece_threatened(king) for king in self.pieces_of_type_and_color(Piece.Type.KING, color)])
 
     def is_color_in_checkmate(self, color: Piece.Color) -> bool:
-        return self.is_color_in_check(color) and all([board.is_color_in_check(color) for board in self.moves_for_color(color)])
+        return self.is_color_in_check(color) and all([board.is_color_in_check(color) for board in self._moves_for_color_ignoring_check(color)])
