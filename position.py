@@ -1,12 +1,12 @@
-import dataclasses
-import typing
+from dataclasses import dataclass
+from typing import Generator
 
 
-@dataclasses.dataclass(frozen=True, repr=False)
+@dataclass(frozen=True, repr=False)
 class Position:
-    @dataclasses.dataclass(frozen=True)
+    @dataclass(frozen=True)
     class Rank:
-        @dataclasses.dataclass(frozen=True)
+        @dataclass(frozen=True)
         class Delta:
             value: int
 
@@ -33,15 +33,15 @@ class Position:
         def __sub__(self, delta: Delta) -> 'Position.Rank':
             return self + -delta
 
-        def enumerate(self, delta: Delta) -> typing.Generator['Position.Rank', None, None]:
+        def enumerate(self, delta: Delta) -> Generator['Position.Rank', None, None]:
             val = self
             while val.can_add(delta):
                 val += delta
                 yield val
 
-    @dataclasses.dataclass(frozen=True)
+    @dataclass(frozen=True)
     class File:
-        @dataclasses.dataclass(frozen=True)
+        @dataclass(frozen=True)
         class Delta:
             value: int
 
@@ -68,13 +68,13 @@ class Position:
         def __sub__(self, delta: Delta) -> 'Position.File':
             return self + -delta
 
-        def enumerate(self, delta: Delta) -> typing.Generator['Position.File', None, None]:
+        def enumerate(self, delta: Delta) -> Generator['Position.File', None, None]:
             val = self
             while val.can_add(delta):
                 val += delta
                 yield val
 
-    @dataclasses.dataclass(frozen=True)
+    @dataclass(frozen=True)
     class Delta:
         drank: 'Position.Rank.Delta'
         dfile: 'Position.File.Delta'
@@ -107,7 +107,7 @@ class Position:
     def __sub__(self, delta: Delta) -> 'Position':
         return self + -delta
 
-    def enumerate(self, delta: Delta) -> typing.Generator['Position', None, None]:
+    def enumerate(self, delta: Delta) -> Generator['Position', None, None]:
         val = self
         while val.can_add(delta):
             val += delta

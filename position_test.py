@@ -1,9 +1,9 @@
 from position import Position
-import unittest
-import itertools
+from unittest import TestCase
+from itertools import islice
 
 
-class PositionRankDeltaTest(unittest.TestCase):
+class PositionRankDeltaTest(TestCase):
     def test_ctor(self):
         for val in (-1, 0, 1):
             with self.subTest(val=val):
@@ -18,7 +18,7 @@ class PositionRankDeltaTest(unittest.TestCase):
                          Position.Rank.Delta(-1))
 
 
-class PositionRankTest(unittest.TestCase):
+class PositionRankTest(TestCase):
     def test_ctor_fail(self):
         with self.assertRaises(AssertionError):
             Position.Rank('i')
@@ -36,7 +36,7 @@ class PositionRankTest(unittest.TestCase):
             'c') - Position.Rank.Delta(1), Position.Rank('b'))
 
     def test_enumerate_zero(self):
-        self.assertListEqual(list(itertools.islice(Position.Rank('a').enumerate(
+        self.assertListEqual(list(islice(Position.Rank('a').enumerate(
             Position.Rank.Delta(0)), 3)), [Position.Rank('a')]*3)
 
     def test_enumerate_right(self):
@@ -56,7 +56,7 @@ class PositionRankTest(unittest.TestCase):
         )
 
 
-class PositionFileDeltaTest(unittest.TestCase):
+class PositionFileDeltaTest(TestCase):
     def test_ctor(self):
         for val in (-1, 0, 1):
             with self.subTest(val=val):
@@ -71,7 +71,7 @@ class PositionFileDeltaTest(unittest.TestCase):
                          Position.File.Delta(-1))
 
 
-class PositionFileTest(unittest.TestCase):
+class PositionFileTest(TestCase):
     def test_ctor_fail(self):
         with self.assertRaises(AssertionError):
             Position.File(9)
@@ -89,7 +89,7 @@ class PositionFileTest(unittest.TestCase):
             3) - Position.File.Delta(1), Position.File(2))
 
     def test_enumerate_zero(self):
-        self.assertListEqual(list(itertools.islice(Position.File(1).enumerate(
+        self.assertListEqual(list(islice(Position.File(1).enumerate(
             Position.File.Delta(0)), 3)), [Position.File(1)]*3)
 
     def test_enumerate_right(self):
@@ -113,13 +113,13 @@ class PositionFileTest(unittest.TestCase):
             1).enumerate(Position.File.Delta(-1))), [])
 
 
-class PositionDeltaTest(unittest.TestCase):
+class PositionDeltaTest(TestCase):
     def test_neg(self):
         self.assertEqual(-Position.Delta(Position.Rank.Delta(1), Position.File.Delta(-1)),
                          Position.Delta(Position.Rank.Delta(-1), Position.File.Delta(1)))
 
 
-class PositionTest(unittest.TestCase):
+class PositionTest(TestCase):
     def test_parse(self):
         self.assertEqual(Position.parse('c2'), Position(
             Position.Rank('c'), Position.File(2)))
@@ -143,7 +143,3 @@ class PositionTest(unittest.TestCase):
     def test_enumerate(self):
         self.assertListEqual(list(Position.parse('f4').enumerate(Position.delta(1, -1))),
                              [Position.parse('g3'), Position.parse('h2')])
-
-
-if __name__ == '__main__':
-    unittest.main()
