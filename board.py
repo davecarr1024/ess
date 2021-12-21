@@ -191,11 +191,48 @@ class Board:
     def is_piece_threatened(self, piece: Piece) -> bool:
         return any([piece not in board.pieces for board in self._moves_for_color_ignoring_check(piece.color.opponent)])
 
-    def pieces_of_type_and_color(self, type: Piece.Type, color: Piece.Color) -> FrozenSet[Piece]:
+    def _pieces_of_type_and_color(self, type: Piece.Type, color: Piece.Color) -> FrozenSet[Piece]:
         return frozenset({piece for piece in self.pieces if piece.type == type and piece.color == color})
 
     def is_color_in_check(self, color: Piece.Color) -> bool:
-        return any([self.is_piece_threatened(king) for king in self.pieces_of_type_and_color(Piece.Type.KING, color)])
+        return any([self.is_piece_threatened(king) for king in self._pieces_of_type_and_color(Piece.Type.KING, color)])
 
     def is_color_in_checkmate(self, color: Piece.Color) -> bool:
         return self.is_color_in_check(color) and all([board.is_color_in_check(color) for board in self._moves_for_color_ignoring_check(color)])
+
+    @staticmethod
+    def default_board():
+        return Board(frozenset({
+            Piece(Piece.Color.WHITE, Piece.Type.ROOK, Position.parse('a1')),
+            Piece(Piece.Color.WHITE, Piece.Type.KNIGHT, Position.parse('b1')),
+            Piece(Piece.Color.WHITE, Piece.Type.BISHOP, Position.parse('c1')),
+            Piece(Piece.Color.WHITE, Piece.Type.QUEEN, Position.parse('d1')),
+            Piece(Piece.Color.WHITE, Piece.Type.KING, Position.parse('e1')),
+            Piece(Piece.Color.WHITE, Piece.Type.BISHOP, Position.parse('f1')),
+            Piece(Piece.Color.WHITE, Piece.Type.KNIGHT, Position.parse('g1')),
+            Piece(Piece.Color.WHITE, Piece.Type.ROOK, Position.parse('h1')),
+            Piece(Piece.Color.WHITE, Piece.Type.PAWN, Position.parse('a2')),
+            Piece(Piece.Color.WHITE, Piece.Type.PAWN, Position.parse('b2')),
+            Piece(Piece.Color.WHITE, Piece.Type.PAWN, Position.parse('c2')),
+            Piece(Piece.Color.WHITE, Piece.Type.PAWN, Position.parse('d2')),
+            Piece(Piece.Color.WHITE, Piece.Type.PAWN, Position.parse('e2')),
+            Piece(Piece.Color.WHITE, Piece.Type.PAWN, Position.parse('f2')),
+            Piece(Piece.Color.WHITE, Piece.Type.PAWN, Position.parse('g2')),
+            Piece(Piece.Color.WHITE, Piece.Type.PAWN, Position.parse('h2')),
+            Piece(Piece.Color.BLACK, Piece.Type.ROOK, Position.parse('a8')),
+            Piece(Piece.Color.BLACK, Piece.Type.KNIGHT, Position.parse('b8')),
+            Piece(Piece.Color.BLACK, Piece.Type.BISHOP, Position.parse('c8')),
+            Piece(Piece.Color.BLACK, Piece.Type.QUEEN, Position.parse('d8')),
+            Piece(Piece.Color.BLACK, Piece.Type.KING, Position.parse('e8')),
+            Piece(Piece.Color.BLACK, Piece.Type.BISHOP, Position.parse('f8')),
+            Piece(Piece.Color.BLACK, Piece.Type.KNIGHT, Position.parse('g8')),
+            Piece(Piece.Color.BLACK, Piece.Type.ROOK, Position.parse('h8')),
+            Piece(Piece.Color.BLACK, Piece.Type.PAWN, Position.parse('a7')),
+            Piece(Piece.Color.BLACK, Piece.Type.PAWN, Position.parse('b7')),
+            Piece(Piece.Color.BLACK, Piece.Type.PAWN, Position.parse('c7')),
+            Piece(Piece.Color.BLACK, Piece.Type.PAWN, Position.parse('d7')),
+            Piece(Piece.Color.BLACK, Piece.Type.PAWN, Position.parse('e7')),
+            Piece(Piece.Color.BLACK, Piece.Type.PAWN, Position.parse('f7')),
+            Piece(Piece.Color.BLACK, Piece.Type.PAWN, Position.parse('g7')),
+            Piece(Piece.Color.BLACK, Piece.Type.PAWN, Position.parse('h7')),
+        }))
