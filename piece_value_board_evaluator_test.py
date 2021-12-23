@@ -14,7 +14,7 @@ class PieceValueBoardEvalutorTest(TestCase):
 
     @staticmethod
     def _board(*pieces: Piece) -> Board:
-        return Board(frozenset(pieces))
+        return Board.new(frozenset(pieces))
 
     def test_friendly_pawn(self):
         self.assertEqual(

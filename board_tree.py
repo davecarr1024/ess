@@ -37,7 +37,8 @@ class BoardTree(ABC):
         ]
 
     def can_expand(self) -> bool:
-        return not any([self.board.is_color_in_checkmate(color) for color in Piece.Color])
+        # no checkmates and everybody has to have a piece to move
+        return not any([self.board.is_color_in_checkmate(color) for color in Piece.Color]) and all(self.board.pieces_by_color.values())
 
     def expand_to_depth(self, depth: int) -> None:
         if depth > 0 and self.can_expand():
@@ -66,7 +67,3 @@ class BoardTree(ABC):
     @property
     @abstractmethod
     def result(self) -> 'BoardTree.Result': ...
-
-    @property
-    def max_child(self) -> 'BoardTree':
-        return max(self.children, key=lambda child: child.result.value)

@@ -1,4 +1,4 @@
-from board_tree_expander import BFSExpander, UntilTimeElapsed
+from board_tree_expander import BFSExpander, UntilTime
 from piece import Piece
 from piece_value_board_evaluator import PieceValueBoardEvalutor
 from min_max_player import MinMaxPlayer
@@ -11,5 +11,5 @@ class MinMaxPlayerTest(TestCase):
         with self.assertRaises(ValueError):
             MinMaxPlayer(Piece.Color.WHITE,
                          PieceValueBoardEvalutor(Piece.Color.BLACK),
-                         BFSExpander(UntilTimeElapsed(10))
+                         BFSExpander(UntilTime(10))
                          )

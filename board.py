@@ -1,14 +1,65 @@
 from piece import Piece
 from position import Position
 
+from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from dataclasses import dataclass
-from functools import cached_property
+from functools import cache, cached_property
 from typing import Callable, FrozenSet
 
 
 @dataclass(frozen=True)
-class Board:
+class Board(ABC):
+    pieces: FrozenSet[Piece]
+
+    @staticmethod
+    @cache
+    def new(pieces: FrozenSet[Piece]):
+        return _Board(pieces)
+
+    @staticmethod
+    def parse(s: str, has_moved: bool = True) -> 'Board':
+        return Board.new(frozenset({Piece.parse(i, has_moved) for i in s.split(',')}))
+
+    @abstractmethod
+    def with_piece(self, piece: Piece) -> 'Board': ...
+
+    @abstractmethod
+    def without_piece(self, piece: Piece) -> 'Board': ...
+
+    @abstractmethod
+    def with_piece_moved(self, piece: Piece, to_position: Position) -> 'Board':
+        ...
+
+    @abstractmethod
+    def moves_for_piece(self, piece: Piece) -> FrozenSet['Board']: ...
+
+    @abstractmethod
+    def moves_for_color(self, color: Piece.Color) -> FrozenSet['Board']:
+        ...
+
+    @abstractmethod
+    def is_piece_threatened(self, piece: Piece) -> bool:
+        ...
+
+    @abstractmethod
+    def is_color_in_check(self, color: Piece.Color) -> bool: ...
+
+    @abstractmethod
+    def is_color_in_checkmate(self, color: Piece.Color) -> bool:
+        ...
+
+    @property
+    @abstractmethod
+    def pieces_by_position(self) -> Mapping['Position', Piece]: ...
+
+    @property
+    @abstractmethod
+    def pieces_by_color(self) -> Mapping['Piece.Color', FrozenSet[Piece]]: ...
+
+
+@dataclass(frozen=True)
+class _Board(Board):
     pieces: FrozenSet[Piece]
 
     def __post_init__(self):
@@ -34,15 +85,11 @@ class Board:
             ''.join([f' {chr(ord("a")+x)}  |' for x in range(8)]) + '\n'
         return s
 
-    @staticmethod
-    def parse(s: str, has_moved: bool = True) -> 'Board':
-        return Board(frozenset({Piece.parse(i, has_moved) for i in s.split(',')}))
-
     def with_piece(self, piece: Piece) -> 'Board':
-        return Board(frozenset({piece}.union(self.pieces)))
+        return Board.new(frozenset({piece}.union(self.pieces)))
 
     def without_piece(self, piece: Piece) -> 'Board':
-        return Board(self.pieces - {piece})
+        return Board.new(self.pieces - {piece})
 
     def with_piece_moved(self, piece: Piece, to_position: Position) -> 'Board':
         board = self
@@ -51,11 +98,13 @@ class Board:
             board = board.without_piece(to_piece)
         return board.without_piece(piece).with_piece(piece.with_position(to_position))
 
-    @cached_property
+    @property
+    @cache
     def pieces_by_position(self) -> Mapping['Position', Piece]:
         return {piece.position: piece for piece in self.pieces}
 
-    @cached_property
+    @property
+    @cache
     def pieces_by_color(self) -> Mapping['Piece.Color', FrozenSet[Piece]]:
         return {color: frozenset({piece for piece in self.pieces if piece.color == color}) for color in Piece.Color}
 
@@ -185,6 +234,10 @@ class Board:
         }
 
     def moves_for_piece(self, piece: Piece) -> FrozenSet['Board']:
+        return self._moves_for_piece(piece)
+
+    @cache
+    def _moves_for_piece(self, piece: Piece) -> FrozenSet['Board']:
         return self._move_funcs[piece.type](piece)
 
     def _moves_for_color_ignoring_check(self, color: Piece.Color) -> FrozenSet['Board']:
@@ -193,6 +246,10 @@ class Board:
                                         for piece in self.pieces if piece.color == color]))
 
     def moves_for_color(self, color: Piece.Color) -> FrozenSet['Board']:
+        return self._moves_for_color(color)
+
+    @cache
+    def _moves_for_color(self, color: Piece.Color) -> FrozenSet['Board']:
         return frozenset({board for board in self._moves_for_color_ignoring_check(color) if not board.is_color_in_check(color)})
 
     def is_piece_threatened(self, piece: Piece) -> bool:
@@ -209,7 +266,7 @@ class Board:
 
     @staticmethod
     def default_board():
-        return Board(frozenset({
+        return Board.new(frozenset({
             Piece(Piece.Color.WHITE, Piece.Type.ROOK, Position.parse('a1')),
             Piece(Piece.Color.WHITE, Piece.Type.KNIGHT, Position.parse('b1')),
             Piece(Piece.Color.WHITE, Piece.Type.BISHOP, Position.parse('c1')),
