@@ -27,8 +27,8 @@ class Piece:
 
     color: Color
     type: Type
-    position: 'Position'
+    position: Position
     has_moved: bool = False
 
-    def with_position(self, position: 'Position') -> 'Piece':
+    def with_position(self, position: Position) -> 'Piece':
         return Piece(self.color, self.type, position, True)
