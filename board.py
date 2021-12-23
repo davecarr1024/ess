@@ -15,6 +15,9 @@ class Board:
         if len(self.pieces) != len(self.pieces_by_position):
             raise ValueError(f'duplicate piece positions {repr(self)}')
 
+    def __repr__(self) -> str:
+        return f'{",".join([repr(piece) for piece in self.pieces])}'
+
     def __str__(self) -> str:
         s = '\n'
         for y in range(7, -1, -1):
@@ -30,6 +33,10 @@ class Board:
         s += '   |' + \
             ''.join([f' {chr(ord("a")+x)}  |' for x in range(8)]) + '\n'
         return s
+
+    @staticmethod
+    def parse(s: str, has_moved: bool = True) -> 'Board':
+        return Board(frozenset({Piece.parse(i, has_moved) for i in s.split(',')}))
 
     def with_piece(self, piece: Piece) -> 'Board':
         return Board(frozenset({piece}.union(self.pieces)))
@@ -113,7 +120,7 @@ class Board:
 
         return frozenset(boards)
 
-    @property
+    @cached_property
     def _move_funcs(self) -> Mapping[Piece.Type, Callable[[Piece], FrozenSet['Board']]]:
         return {
             Piece.Type.PAWN: self._moves_for_pawn,

@@ -18,6 +18,15 @@ class BoardTest(TestCase):
     def _board(*pieces: Piece) -> Board:
         return Board(frozenset(pieces))
 
+    def test_parse(self):
+        self.assertEqual(
+            Board.parse('wpd2,bbf8'),
+            self._board(
+                self._piece('d2', Piece.Type.PAWN, Piece.Color.WHITE, True),
+                self._piece('f8', Piece.Type.BISHOP, Piece.Color.BLACK, True),
+            )
+        )
+
     def test_duplicate_positions(self):
         with self.assertRaises(ValueError):
             self._board(self._piece('c2', type=Piece.Type.BISHOP),

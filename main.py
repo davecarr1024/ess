@@ -1,4 +1,5 @@
 from board import Board
+from board_tree_expander import BFSExpander, UntilNumSamples
 from game import Game
 from min_max_player import MinMaxPlayer
 from piece import Piece
@@ -10,7 +11,9 @@ def main():
     Game(
         TextPlayer(Piece.Color.WHITE),
         MinMaxPlayer(Piece.Color.BLACK,
-                     PieceValueBoardEvalutor(Piece.Color.BLACK))
+                     PieceValueBoardEvalutor(Piece.Color.BLACK),
+                     BFSExpander(UntilNumSamples(10))
+                     )
     ).play(Board.default_board())
 
 
